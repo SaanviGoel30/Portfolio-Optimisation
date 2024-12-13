@@ -4,6 +4,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import yfinance as yf
 
+NUM_TRADING_DAYS = 252
+NUM_SIMULATIONS = 100000
+stocks = ['RELIANCE.NS' , 'TCS.NS' ,
+          'HINDUNILVR.NS' , 'HDFCBANK.NS' ,
+          'ITC.NS' , 'LT.NS' , 'INFY.NS']
+start_date = "2018-01-01"
+end_date = "2024-09-01"
+
 stock_data={}
 for i in stocks:
   ticker=yf.Ticker(i)
@@ -11,8 +19,9 @@ for i in stocks:
 stock_prices =pd.DataFrame(stock_data)
 
 log_returns=np.log(stock_prices/stock_prices.shift(1))
+log_returns.dropna()
 
-print("Stock          Annulated Returns")
+print("Stocks       Annulaised Returns(%)")
 print(log_returns.mean()*NUM_TRADING_DAYS*100)
 
 print("Stocks         Volatility(Risk)")
@@ -22,13 +31,14 @@ portfolio_return=[]
 portfolio_risk=[]
 portfolio_weight=[]
 
-for _ in range(NUM_SIMULATIONS):
-  w= np.random.random(len(stocks))
+for _ in range (NUM_SIMULATIONS):
+  w = np.random.random(len(stocks))
   w/=np.sum(w)
   portfolio_weight.append(w)
-  p_return= np.sum(log_returns.mean()*w)*NUM_TRADING_DAYS
+  p_return = np.sum(log_returns.mean()*w)*NUM_TRADING_DAYS
   portfolio_return.append(p_return)
-  p_risk=np.sqrt(np.dot(w.T,np.dot(log_returns.cov()*NUM_TRADING_DAYS,w)))
+  p_risk = np.sqrt(np.dot(w.T,
+        np.dot(log_returns.cov()*NUM_TRADING_DAYS,w)))
   portfolio_risk.append(p_risk)
 
 portfolio_weight=np.array(portfolio_weight)
